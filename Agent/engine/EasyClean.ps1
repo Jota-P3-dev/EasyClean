@@ -2,30 +2,30 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
-. (Join-Path $root 'NebulaClean.Core.ps1') -RootPath $root
+. (Join-Path $root 'EasyClean.Core.ps1') -RootPath $root
 
 $listener = [System.Net.HttpListener]::new()
 $port = 5005
 $prefix = "http://localhost:$port/"
 $listener.Prefixes.Add($prefix)
 
-Write-NebulaLog "Iniciando servidor NebulaClean em $prefix"
+Write-EasyLog "Iniciando servidor EasyClean em $prefix"
 
 try {
     $listener.Start()
 }
 catch {
-    Write-NebulaLog "Falha ao iniciar HttpListener: $($_.Exception.Message)" 'ERROR'
+    Write-EasyLog "Falha ao iniciar HttpListener: $($_.Exception.Message)" 'ERROR'
     Write-Host "Nao foi possivel iniciar o servidor HTTP. Verifique se a porta $port esta livre." -ForegroundColor Red
     exit 1
 }
 
-Initialize-NebulaConfig
-Initialize-NebulaProgress
+Initialize-EasyConfig
+Initialize-EasyProgress
 
 Start-Process $prefix | Out-Null
 
-Write-Host "NebulaClean Enterprise em execucao em $prefix" -ForegroundColor Cyan
+Write-Host "EasyClean Enterprise em execucao em $prefix" -ForegroundColor Cyan
 Write-Host "Pressione Ctrl+C nesta janela para encerrar." -ForegroundColor DarkGray
 
 function Send-JsonResponse {
@@ -88,19 +88,19 @@ function Handle-ApiRequest {
 
     switch -Wildcard ($path) {
         '/api/status' {
-            $config = Get-NebulaConfig
-            $disk = Get-NebulaDiskInfo
-            $progress = Get-NebulaProgress
+            $config = Get-EasyConfig
+            $disk = Get-EasyDiskInfo
+            $progress = Get-EasyProgress
             $data = @{
-                AppName    = 'NebulaClean Enterprise'
-                Version    = '1.0.0'
-                IsAdmin    = (Get-IsAdmin)
-                Machine    = $env:COMPUTERNAME
-                User       = $env:USERNAME
-                Disk       = $disk
-                Config     = $config
-                Progress   = $progress
-                Timestamp  = (Get-Date).ToString('o')
+                AppName   = 'EasyClean Enterprise'
+                Version   = '1.0.0'
+                IsAdmin   = (Get-IsAdmin)
+                Machine   = $env:COMPUTERNAME
+                User      = $env:USERNAME
+                Disk      = $disk
+                Config    = $config
+                Progress  = $progress
+                Timestamp = (Get-Date).ToString('o')
             }
             Send-JsonResponse -Context $Context -Data $data
         }
@@ -115,16 +115,16 @@ function Handle-ApiRequest {
                 $selected = @($body.SelectedTargetIds)
             }
 
-            $current = Get-NebulaProgress
+            $current = Get-EasyProgress
             if ($current.Status -eq 'running') {
                 Send-JsonResponse -Context $Context -Data @{ error = 'Uma limpeza ja esta em andamento.' } -StatusCode 409
                 return
             }
 
-            Write-NebulaLog "Requisicao de limpeza recebida. Simulacao: $simulation"
+            Write-EasyLog "Requisicao de limpeza recebida. Simulacao: $simulation"
 
             try {
-                $worker = Join-Path $root 'NebulaClean.Worker.ps1'
+                $worker = Join-Path $root 'EasyClean.Worker.ps1'
                 if (-not (Test-Path $worker)) {
                     throw "Worker nao encontrado: $worker"
                 }
@@ -135,32 +135,32 @@ function Handle-ApiRequest {
                 }
 
                 $simFlag = if ($simulation) { '1' } else { '0' }
-                Update-NebulaProgress -Status 'running' -Phase 'enumerating' -CurrentTarget 'Iniciando limpeza...' -Processed 0 -Total 0 -FreedBytes 0 -Simulation $simulation
+                Update-EasyProgress -Status 'running' -Phase 'enumerating' -CurrentTarget 'Iniciando limpeza...' -Processed 0 -Total 0 -FreedBytes 0 -Simulation $simulation
 
                 $args = "-NoProfile -ExecutionPolicy Bypass -File `"$worker`" -Root `"$root`" -SimulationFlag $simFlag -SelectedIdsCsv `"$selectedCsv`""
                 $proc = Start-Process -FilePath 'powershell' -ArgumentList $args -WindowStyle Hidden -PassThru
-                Write-NebulaLog "Worker de limpeza iniciado. PID: $($proc.Id)"
+                Write-EasyLog "Worker de limpeza iniciado. PID: $($proc.Id)"
 
                 $data = @{
-                    Message        = 'Limpeza iniciada'
-                    Simulation     = $simulation
-                    WorkerPid      = $proc.Id
+                    Message    = 'Limpeza iniciada'
+                    Simulation = $simulation
+                    WorkerPid  = $proc.Id
                 }
                 Send-JsonResponse -Context $Context -Data $data
             }
             catch {
-                Write-NebulaLog "Erro ao iniciar limpeza: $($_.Exception.Message)" 'ERROR'
-                Initialize-NebulaProgress -Status 'idle'
+                Write-EasyLog "Erro ao iniciar limpeza: $($_.Exception.Message)" 'ERROR'
+                Initialize-EasyProgress -Status 'idle'
                 Send-JsonResponse -Context $Context -Data @{ error = 'Erro ao iniciar limpeza. Veja os logs.' } -StatusCode 500
             }
         }
         '/api/progress' {
             try {
-                $progress = Get-NebulaProgress
+                $progress = Get-EasyProgress
                 Send-JsonResponse -Context $Context -Data $progress
             }
             catch {
-                Write-NebulaLog "Falha ao ler progresso: $($_.Exception.Message)" 'WARN'
+                Write-EasyLog "Falha ao ler progresso: $($_.Exception.Message)" 'WARN'
                 Send-JsonResponse -Context $Context -Data @{
                     Status        = 'running'
                     Phase         = 'enumerating'
@@ -178,7 +178,7 @@ function Handle-ApiRequest {
             $body = Get-RequestBodyJson -Context $Context
             $last = 200
             if ($body -and $body.Last) { $last = [int]$body.Last }
-            $lines = Get-NebulaLogs -Last $last
+            $lines = Get-EasyLogs -Last $last
             $data = @{
                 Lines = $lines
             }
@@ -186,7 +186,7 @@ function Handle-ApiRequest {
         }
         '/api/config' {
             if ($request.HttpMethod -eq 'GET') {
-                $config = Get-NebulaConfig
+                $config = Get-EasyConfig
                 Send-JsonResponse -Context $Context -Data $config
             }
             elseif ($request.HttpMethod -eq 'POST') {
@@ -195,9 +195,9 @@ function Handle-ApiRequest {
                     Send-JsonResponse -Context $Context -Data @{ error = 'Corpo da requisicao vazio.' } -StatusCode 400
                     return
                 }
-                Save-NebulaConfig -Config $body
+                Save-EasyConfig -Config $body
                 if ($body.Schedule) {
-                    Set-NebulaSchedule -Enabled:[bool]$body.Schedule.Enabled -Time $body.Schedule.Time
+                    Set-EasySchedule -Enabled:[bool]$body.Schedule.Enabled -Time $body.Schedule.Time
                 }
                 Send-JsonResponse -Context $Context -Data @{ message = 'Configuracao salva.' }
             }
@@ -259,9 +259,9 @@ while ($true) {
         break
     }
     catch {
-        Write-NebulaLog "Erro inesperado no servidor: $($_.Exception.Message)" 'ERROR'
+        Write-EasyLog "Erro inesperado no servidor: $($_.Exception.Message)" 'ERROR'
     }
 }
 
-Write-NebulaLog 'Servidor NebulaClean encerrado.'
+Write-EasyLog 'Servidor EasyClean encerrado.'
 $listener.Stop()

@@ -224,7 +224,7 @@ function Get-TargetItems {
     # Expande variaveis de ambiente para suportar valores como %TEMP% e %LOCALAPPDATA%
     $path = [Environment]::ExpandEnvironmentVariables($Target.Path)
     if (-not (Test-Path $path)) {
-        Write-NebulaLog "Pasta nao encontrada: $path"
+        Write-EasyLog "Pasta nao encontrada: $path"
         return @()
     }
 

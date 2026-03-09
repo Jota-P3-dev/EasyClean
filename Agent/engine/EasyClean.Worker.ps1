@@ -16,13 +16,13 @@ if ($SelectedIdsCsv) {
     $selectedIds = @($SelectedIdsCsv -split ',' | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
 }
 
-Write-NebulaLog "Worker iniciado. Simulacao: $simulation. Alvos: $($selectedIds -join ',')"
+Write-EasyLog "Worker iniciado. Simulacao: $simulation. Alvos: $($selectedIds -join ',')"
 
 try {
     Invoke-EasyClean -Simulation:$simulation -SelectedTargetIds $selectedIds | Out-Null
-    Write-NebulaLog 'Worker finalizado com sucesso.'
+    Write-EasyLog 'Worker finalizado com sucesso.'
 }
 catch {
-    Write-NebulaLog "Worker falhou: $($_.Exception.Message)" 'ERROR'
-    Initialize-NebulaProgress -Status 'idle'
+    Write-EasyLog "Worker falhou: $($_.Exception.Message)" 'ERROR'
+    Initialize-EasyProgress -Status 'idle'
 }

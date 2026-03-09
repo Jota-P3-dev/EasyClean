@@ -294,18 +294,41 @@ export default function Dashboard() {
                 </span>
               </div>
 
-              <div className="mt-6 grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <p className="text-slate-500 text-[10px] uppercase font-bold tracking-tight">CPU</p>
-                  <p className={`text-sm font-bold ${isHot(machine.temperatura_cpu) ? 'text-red-400' : 'text-emerald-400'}`}>
-                    {machine.uso_cpu || '0%'}
-                  </p>
-                  <p className="text-[10px] text-slate-500">{machine.temperatura_cpu}</p>
+              <div className="mt-6 grid grid-cols-1 gap-5">
+                {/* CPU usage section */}
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <p className="text-slate-500 text-[10px] uppercase font-bold tracking-tight">CPU</p>
+                    <p className={`text-xs font-bold ${isHot(machine.temperatura_cpu) ? 'text-red-400' : 'text-emerald-400'}`}>
+                      {machine.uso_cpu || '0%'}
+                    </p>
+                  </div>
+                  <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full transition-all duration-1000 ${parseFloat(machine.uso_cpu?.replace('%', '') || '0') > 85 ? 'bg-red-500' :
+                          parseFloat(machine.uso_cpu?.replace('%', '') || '0') > 60 ? 'bg-amber-500' : 'bg-emerald-500'
+                        }`}
+                      style={{ width: machine.uso_cpu || '0%' }}
+                    ></div>
+                  </div>
+                  <p className="text-[10px] text-slate-500 leading-none">{machine.temperatura_cpu}</p>
                 </div>
-                <div className="space-y-1">
-                  <p className="text-slate-500 text-[10px] uppercase font-bold tracking-tight">RAM / Disco</p>
-                  <p className="text-sm font-bold text-slate-200">{machine.uso_ram || '0%'}</p>
-                  <p className="text-[10px] text-slate-500">{machine.saude_disco}</p>
+
+                {/* RAM usage section */}
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <p className="text-slate-500 text-[10px] uppercase font-bold tracking-tight">RAM / DISCO</p>
+                    <p className="text-xs font-bold text-slate-200">{machine.uso_ram || '0%'}</p>
+                  </div>
+                  <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full transition-all duration-1000 ${parseFloat(machine.uso_ram?.replace('%', '') || '0') > 85 ? 'bg-red-500' :
+                          parseFloat(machine.uso_ram?.replace('%', '') || '0') > 60 ? 'bg-amber-500' : 'bg-slate-400'
+                        }`}
+                      style={{ width: machine.uso_ram || '0%' }}
+                    ></div>
+                  </div>
+                  <p className="text-[10px] text-slate-500 leading-none">{machine.saude_disco}</p>
                 </div>
               </div>
 

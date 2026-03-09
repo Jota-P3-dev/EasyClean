@@ -62,7 +62,33 @@ namespace EasyCleanAgent
 
         private static string GetCpuTemperature()
         {
-            return "N/A - Monitoramento Desativado";
+            try
+            {
+                // Estratégia 1: MSAcpi_ThermalZoneTemperature (WMI root/wmi)
+                using (var searcher = new ManagementObjectSearcher(@"root\wmi", "SELECT CurrentTemperature FROM MSAcpi_ThermalZoneTemperature"))
+                {
+                    foreach (ManagementObject obj in searcher.Get())
+                    {
+                        double temp = Convert.ToDouble(obj["CurrentTemperature"]);
+                        // Kelvin para Celsius: (K - 273.15) / 10 ou direto se o driver já der em décimos de Kelvin
+                        temp = (temp - 2731.5) / 10.0;
+                        if (temp > 0 && temp < 120) return $"{temp:F1}°C";
+                    }
+                }
+
+                // Estratégia 2: Win32_TemperatureProbe (WMI root/cimv2)
+                using (var searcher = new ManagementObjectSearcher("SELECT CurrentReading FROM Win32_TemperatureProbe"))
+                {
+                    foreach (ManagementObject obj in searcher.Get())
+                    {
+                        var reading = obj["CurrentReading"];
+                        if (reading != null) return $"{reading}°C";
+                    }
+                }
+            }
+            catch { }
+
+            return "N/A";
         }
 
         private static string GetCpuUsage()
