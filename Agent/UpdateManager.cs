@@ -9,7 +9,7 @@ namespace EasyCleanAgent
 {
     public class UpdateManager
     {
-        public const string CurrentVersion = "1.0.5";
+        public const string CurrentVersion = "1.0.6";
         // Substitua 'usuario' e 'repositorio' pelos seus dados reais do GitHub
         private const string GitHubRepo = "Jota-P3-dev/EasyClean";
         private const string UpdateApiUrl = $"https://api.github.com/repos/{GitHubRepo}/releases/latest";
@@ -74,25 +74,31 @@ namespace EasyCleanAgent
                     File.WriteAllBytes(tempPath, data);
                 }
 
-                // 3. Cria o script .bat para fazer a substituição "a frio"
-                string batContent = $@"
-@echo off
-timeout /t 2 /nobreak > nul
-:loop
-del /f /q ""{currentExe}""
-if exist ""{currentExe}"" (
-    timeout /t 1 /nobreak > nul
-    goto loop
-)
-move /y ""{tempPath}"" ""{currentExe}""
-start """" ""{currentExe}""
-del ""%~f0""
+                // 3. Cria o script PowerShell para substituição "a frio"
+                string ps1Content = $@"
+Start-Sleep -Seconds 2
+$retryCount = 0
+while ((Test-Path -Path ""{currentExe}"") -and ($retryCount -lt 10)) {{
+    try {{
+        Remove-Item -Path ""{currentExe}"" -Force -ErrorAction Stop
+        break
+    }} catch {{
+        Start-Sleep -Seconds 1
+        $retryCount++
+    }}
+}}
+if (-not (Test-Path -Path ""{currentExe}"")) {{
+    Move-Item -Path ""{tempPath}"" -Destination ""{currentExe}"" -Force
+    Start-Process -FilePath ""{currentExe}""
+}}
+Remove-Item -Path $PSCommandPath -Force
 ";
-                File.WriteAllText(batPath, batContent);
+                File.WriteAllText(batPath + ".ps1", ps1Content);
 
-                // 4. Executa o bat e fecha o app atual
+                // 4. Executa o PowerShell de forma oculta e fecha o app atual
                 Process.Start(new ProcessStartInfo {
-                    FileName = batPath,
+                    FileName = "powershell.exe",
+                    Arguments = $"-ExecutionPolicy Bypass -WindowStyle Hidden -File \"{batPath}.ps1\"",
                     CreateNoWindow = true,
                     UseShellExecute = false
                 });
