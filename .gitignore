@@ -36,3 +36,10 @@ yarn-error.log*
 dist/
 build/
 .cache/
+
+# Agent (C# Build Artifacts)
+Agent/bin/
+Agent/obj/
+test_publish/
+*.exe
+*.pdb
