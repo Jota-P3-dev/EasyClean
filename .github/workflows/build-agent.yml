@@ -1,0 +1,38 @@
+name: Build and Release Agent (EasyClean)
+
+on:
+  push:
+    tags:
+      - 'v*' # Disparado quando você cria uma tag como v1.0.1
+  workflow_dispatch: # Permite rodar manualmente no painel Actions
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x' # Ajuste para a versão que você usa
+
+    - name: Restore dependencies
+      run: dotnet restore Agent/EasyCleanAgent.csproj
+
+    - name: Build Agent
+      run: dotnet publish Agent/EasyCleanAgent.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o ./publish
+
+    - name: Create Release
+      id: create_release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: ./publish/EasyCleanAgent.exe
+        tag_name: ${{ github.ref_name }}
+        name: Release ${{ github.ref_name }}
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

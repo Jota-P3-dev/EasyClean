@@ -1,0 +1,12 @@
+C:\Users\Jotta\Documents\GitHub\nebulaclean-enterprise\Agent\bin\Release\version-002\EasyCleanAgent.pdb
+C:\Users\Jotta\Documents\GitHub\nebulaclean-enterprise\Agent\bin\Release\version-002\engine\DirectClean.ps1
+C:\Users\Jotta\Documents\GitHub\nebulaclean-enterprise\Agent\bin\Release\version-002\engine\NebulaClean.Core.ps1
+C:\Users\Jotta\Documents\GitHub\nebulaclean-enterprise\Agent\bin\Release\version-002\engine\NebulaClean.ps1
+C:\Users\Jotta\Documents\GitHub\nebulaclean-enterprise\Agent\bin\Release\version-002\engine\NebulaClean.Worker.ps1
+C:\Users\Jotta\Documents\GitHub\nebulaclean-enterprise\Agent\bin\Release\version-002\engine\PowerClean.bat
+C:\Users\Jotta\Documents\GitHub\nebulaclean-enterprise\Agent\bin\Release\version-002\D3DCompiler_47_cor3.dll
+C:\Users\Jotta\Documents\GitHub\nebulaclean-enterprise\Agent\bin\Release\version-002\PenImc_cor3.dll
+C:\Users\Jotta\Documents\GitHub\nebulaclean-enterprise\Agent\bin\Release\version-002\PresentationNative_cor3.dll
+C:\Users\Jotta\Documents\GitHub\nebulaclean-enterprise\Agent\bin\Release\version-002\vcruntime140_cor3.dll
+C:\Users\Jotta\Documents\GitHub\nebulaclean-enterprise\Agent\bin\Release\version-002\wpfgfx_cor3.dll
+C:\Users\Jotta\Documents\GitHub\nebulaclean-enterprise\Agent\bin\Release\version-002\EasyCleanAgent.exe
