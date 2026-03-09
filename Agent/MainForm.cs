@@ -20,7 +20,6 @@ namespace EasyCleanAgent
         private ProgressBar progressBar;
         private Button btnLogs;
         private Label lblUltimaOtimizacao;
-        private Label lblVersion;
         private System.Windows.Forms.Timer uiUpdateTimer;
 
         // Para arrastar a tela sem bordas
@@ -105,7 +104,7 @@ namespace EasyCleanAgent
 
             var titleMini = new Label
             {
-                Text = "EASYCLEAN AGENT",
+                Text = $"EASYCLEAN AGENT  |  v{UpdateManager.CurrentVersion}",
                 Font = new Font("Segoe UI Semibold", 10),
                 ForeColor = Color.FromArgb(100, 116, 139), // slate-500
                 Location = new Point(15, 10),
@@ -244,17 +243,6 @@ namespace EasyCleanAgent
                 }
             };
             leftPanel.Controls.Add(btnLogs);
-
-            lblVersion = new Label
-            {
-                Text = $"v{UpdateManager.CurrentVersion}",
-                Font = new Font("Segoe UI", 9),
-                ForeColor = Color.FromArgb(148, 163, 184), // slate-400
-                AutoSize = true,
-                Location = new Point(leftPanel.Width - 60, leftPanel.Height - 40),
-                Anchor = AnchorStyles.Bottom | AnchorStyles.Right
-            };
-            leftPanel.Controls.Add(lblVersion);
 
             // --- Conteúdo Direito (Terminal) ---
             
