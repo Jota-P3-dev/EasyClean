@@ -9,7 +9,7 @@ namespace EasyCleanAgent
 {
     public class UpdateManager
     {
-        public const string CurrentVersion = "1.0.4";
+        public const string CurrentVersion = "1.0.5";
         // Substitua 'usuario' e 'repositorio' pelos seus dados reais do GitHub
         private const string GitHubRepo = "Jota-P3-dev/EasyClean";
         private const string UpdateApiUrl = $"https://api.github.com/repos/{GitHubRepo}/releases/latest";
