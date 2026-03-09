@@ -6,6 +6,9 @@ on:
       - 'v*' # Disparado quando você cria uma tag como v1.0.1
   workflow_dispatch: # Permite rodar manualmente no painel Actions
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: windows-latest
