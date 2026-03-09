@@ -2,7 +2,6 @@ using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Text.Json;
-using System.Windows.Forms;
 using System.Diagnostics;
 using System.IO;
 
@@ -10,7 +9,7 @@ namespace EasyCleanAgent
 {
     public class UpdateManager
     {
-        public const string CurrentVersion = "1.0.9";
+        public const string CurrentVersion = "1.1.0";
         // Substitua 'usuario' e 'repositorio' pelos seus dados reais do GitHub
         private const string GitHubRepo = "Jota-P3-dev/EasyClean";
         private const string UpdateApiUrl = $"https://api.github.com/repos/{GitHubRepo}/releases/latest";
@@ -29,11 +28,8 @@ namespace EasyCleanAgent
                     {
                         string latestVersion = doc.RootElement.GetProperty("tag_name").GetString().Replace("v", "");
                         
-                        MessageBox.Show($"Versão Atual: {CurrentVersion}\nVersão GitHub: {latestVersion}", "EasyClean Debug");
-
                         if (IsNewerVersion(latestVersion, CurrentVersion))
                         {
-                            MessageBox.Show("Nova versão detectada! Iniciando busca de assets...", "EasyClean Debug");
                             // Pega o primeiro asset que termina com .exe
                             var assets = doc.RootElement.GetProperty("assets");
                             foreach (var asset in assets.EnumerateArray())
@@ -41,22 +37,16 @@ namespace EasyCleanAgent
                                 string downloadUrl = asset.GetProperty("browser_download_url").GetString();
                                 if (downloadUrl.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
                                 {
-                                    MessageBox.Show($"Baixando atualização de:\n{downloadUrl}", "EasyClean Debug");
                                     await DownloadAndApplyUpdate(downloadUrl);
                                     break;
                                 }
                             }
-                        }
-                        else
-                        {
-                            // MessageBox.Show("Você já está na versão mais recente!", "EasyClean Debug");
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erro CRÍTICO na checagem: {ex.Message}", "EasyClean Erro");
                 Debug.WriteLine($"Erro ao verificar atualizações no GitHub: {ex.Message}");
             }
         }
@@ -115,7 +105,6 @@ Remove-Item -Path $PSCommandPath -Force
                 
                 Environment.Exit(0);
             } catch (Exception ex) {
-                MessageBox.Show($"Erro ao APLICAR update: {ex.Message}\n\nStack: {ex.StackTrace}", "EasyClean Erro");
                 Debug.WriteLine("Falha no processo de update: " + ex.Message);
             }
         }
