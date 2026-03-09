@@ -99,7 +99,7 @@ del ""%~f0""
                 
                 Environment.Exit(0);
             } catch (Exception ex) {
-                Debug.WriteLine(""Falha no processo de update: "" + ex.Message);
+                Debug.WriteLine("Falha no processo de update: " + ex.Message);
             }
         }
     }
